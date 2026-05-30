@@ -27,35 +27,34 @@
       </div>
     </div>
 
-    <!-- Theme rows with category dots -->
+    <!-- Theme rows -->
     <div class="theme-rows">
       {% for theme in themes %}
       <div class="theme-row">
-        <div class="theme-label">
+        <a class="theme-label" href="theme-{{ theme.id }}.html">
           <span class="theme-dot" style="background:{{ theme.color }}"></span>
           <span class="theme-name">{{ theme.title }}</span>
           <span class="theme-subtitle">{{ theme.subtitle }}</span>
-        </div>
-        <div class="theme-track">
-          {% for cat in theme.categories %}
-          {% set pos = (cat.year - dynasties[0][1]) / total_span * 100 %}
-          <a class="cat-dot" href="category-{{ theme.id }}-{{ cat.id }}.html"
+        </a>
+        <a class="theme-track" href="theme-{{ theme.id }}.html">
+          {% for node in theme.nodes %}
+          {% set pos = (node.year - dynasties[0][1]) / total_span * 100 %}
+          <a class="node-dot" href="node-{{ node.id }}.html"
              style="left: {{ '%.1f' | format(pos) }}%;"
-             title="{{ cat.title }}">
-            <span class="cat-marker" style="background:{{ theme.color }}"></span>
-            <span class="cat-tooltip">
-              <strong>{{ cat.title }}</strong>
-              <em>{{ cat.desc }}</em>
-              <small>{{ cat.nodes | length }} 篇文章</small>
+             title="{{ node.dynasty }} · {{ node.title }}">
+            <span class="dot-marker" style="background:{{ theme.color }}"></span>
+            <span class="dot-tooltip">
+              <small>{{ node.dynasty }}</small>
+              <strong>{{ node.title }}</strong>
             </span>
           </a>
           {% endfor %}
           <!-- Connecting line -->
           <svg class="theme-line" preserveAspectRatio="none" viewBox="0 0 1000 20">
-            <polyline points="{% for cat in theme.categories %}{% set x = (cat.year - dynasties[0][1]) / total_span * 1000 %}{{ '%.0f' | format(x) }},10 {% endfor %}"
+            <polyline points="{% for node in theme.nodes %}{% set x = (node.year - dynasties[0][1]) / total_span * 1000 %}{{ '%.0f' | format(x) }},10 {% endfor %}"
                       fill="none" stroke="{{ theme.color }}" stroke-width="2" stroke-opacity="0.4"/>
           </svg>
-        </div>
+        </a>
       </div>
       {% endfor %}
     </div>
