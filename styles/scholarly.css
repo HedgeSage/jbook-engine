@@ -568,17 +568,3 @@ body {
   margin-bottom: 1.2rem;
   text-indent: 2em;
 }
-.framework p:first-child {
-  color: var(--ink);
-  font-size: 1rem;
-  text-indent: 0;
-}
-.framework p:first-child::first-letter {
-  font-size: 2.8rem;
-  float: left;
-  line-height: 0.8;
-  padding-right: 0.15em;
-  padding-top: 0.05em;
-  color: var(--accent);
-  font-weight: 700;
-}
