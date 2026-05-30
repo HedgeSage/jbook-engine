@@ -30,25 +30,20 @@
     <!-- Theme rows -->
     <div class="theme-rows">
       {% for theme in themes %}
-      <div class="theme-row">
-        <a class="theme-label" href="theme-{{ theme.id }}.html">
+      <a class="theme-row" href="theme-{{ theme.id }}.html">
+        <div class="theme-label">
           <span class="theme-dot" style="background:{{ theme.color }}"></span>
           <span class="theme-name">{{ theme.title }}</span>
           <span class="theme-subtitle">{{ theme.subtitle }}</span>
-        </a>
+        </div>
         <div class="theme-track">
-          <a class="track-link" href="theme-{{ theme.id }}.html" aria-hidden="true"></a>
           {% for node in theme.nodes %}
           {% set pos = (node.year - dynasties[0][1]) / total_span * 100 %}
           <a class="node-dot"
              href="node-{{ node.id }}.html"
-             style="left: {{ '%.1f' | format(pos) }}%;"
-             title="{{ node.title }} ({{ node.year }})">
-            <span class="dot-marker" style="background:{{ theme.color }}"></span>
-            <span class="node-tooltip">
-              <strong>{{ node.title }}</strong>
-              <em>{{ node.dynasty }} · {{ node.year }}年</em>
-            </span>
+             style="left: {{ '%.1f' | format(pos) }}%; background:{{ theme.color }};"
+             title="{{ node.title }} ({{ node.year }})"
+             onclick="event.stopPropagation()">
           </a>
           {% endfor %}
           <!-- Connecting line -->
@@ -57,7 +52,7 @@
                       fill="none" stroke="{{ theme.color }}" stroke-width="2" stroke-opacity="0.4"/>
           </svg>
         </div>
-      </div>
+      </a>
       {% endfor %}
     </div>
   </main>
