@@ -402,24 +402,27 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   margin-top: 4rem;
   padding-top: 2rem;
   border-top: 1px solid var(--border);
   font-family: var(--sans);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
-.node-nav a {
+.nav-prev, .nav-next {
   text-decoration: none;
   color: var(--ink-light);
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.1rem;
-  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  transition: color 0.2s;
 }
-.node-nav a:hover { color: var(--ink); border-color: var(--ink); }
-.node-nav .nav-theme {
+.nav-prev:hover, .nav-next:hover { color: var(--ink); }
+.nav-theme {
+  text-decoration: none;
   color: var(--accent);
   font-weight: 500;
+  white-space: nowrap;
 }
+.nav-theme:hover { text-decoration: underline; }
 
 /* Bottom nav */
 .bottom-nav {
