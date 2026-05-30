@@ -144,6 +144,10 @@ def _md_to_html(text: str) -> str:
         stripped = line.strip()
         if stripped == "":
             flush()
+        elif stripped.startswith("## "):
+            flush()
+            heading = stripped[3:]
+            result.append(f"<h2>{heading}</h2>")
         elif stripped.startswith("### "):
             flush()
             heading = stripped[4:]

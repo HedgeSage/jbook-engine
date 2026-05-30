@@ -22,31 +22,34 @@
       {{ node.content | safe }}
     </div>
 
-    <!-- Cross references: same-period nodes in other themes -->
-    {% if cross_refs %}
-    <aside class="cross-refs">
-      <h2>同一时期</h2>
-      <ul>
-        {% for ref in cross_refs %}
-        <li>
-          <a href="node-{{ ref.id }}.html">
-            <span class="ref-theme" style="color:{{ ref.color }}">{{ ref.theme_title }}</span>
-            <span class="ref-title">{{ ref.title }}</span>
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-    </aside>
-    {% endif %}
+    <footer class="node-footer">
+      {% if cross_refs %}
+      <aside class="cross-refs">
+        <h2>同一时期</h2>
+        <ul>
+          {% for ref in cross_refs %}
+          <li>
+            <a href="node-{{ ref.id }}.html">
+              <span class="ref-theme" style="color:{{ ref.color }}">{{ ref.theme_title }}</span>
+              <span class="ref-title">{{ ref.title }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </aside>
+      {% endif %}
 
-    <footer class="node-nav">
-      {% if prev_node %}
-      <a class="nav-prev" href="node-{{ prev_node.id }}.html">← {{ prev_node.title }}</a>
-      {% else %}<span></span>{% endif %}
-      <a class="nav-theme" href="theme-{{ theme.id }}.html">回到 {{ theme.title }} 时间线</a>
-      {% if next_node %}
-      <a class="nav-next" href="node-{{ next_node.id }}.html">{{ next_node.title }} →</a>
-      {% else %}<span></span>{% endif %}
+      <nav class="node-nav">
+        <a class="nav-back" href="theme-{{ theme.id }}.html">← 回到 {{ theme.title }}</a>
+        <div class="nav-pager">
+          {% if prev_node %}
+          <a class="nav-prev" href="node-{{ prev_node.id }}.html" title="{{ prev_node.title }}">{{ prev_node.title }}</a>
+          {% else %}<span></span>{% endif %}
+          {% if next_node %}
+          <a class="nav-next" href="node-{{ next_node.id }}.html" title="{{ next_node.title }}">{{ next_node.title }}</a>
+          {% else %}<span></span>{% endif %}
+        </div>
+      </nav>
     </footer>
   </article>
 </body>
