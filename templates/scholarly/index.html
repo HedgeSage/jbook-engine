@@ -40,10 +40,10 @@
           {% for node in theme.nodes %}
           {% set pos = (node.year - dynasties[0][1]) / total_span * 100 %}
           <a class="node-dot"
-             href="node-{{ node.id }}.html"
-             style="left: {{ '%.1f' | format(pos) }}%; background:{{ theme.color }};"
-             title="{{ node.title }} ({{ node.year }})"
-             onclick="event.stopPropagation()">
+               href="node-{{ node.id }}.html"
+               style="left: {{ '%.1f' | format(pos) }}%; background:{{ theme.color }}"
+               title="{{ node.title }} ({{ node.year }})"
+               onclick="event.stopPropagation()">
             <span class="node-tooltip">
               <strong>{{ node.title }}</strong>
               <em>{{ node.dynasty }} · {{ node.year }}年</em>
