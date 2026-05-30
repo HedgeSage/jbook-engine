@@ -100,7 +100,7 @@
           <p class="eyebrow">What remains</p>
           <h2>读完检查</h2>
           <ol class="takeaway-list">
-            {% for t in chapter.takeaways %}<li>{{ t }}</li>{% endfor %}
+            {% for t in chapter.takeaways %}<li>{{ t | safe }}</li>{% endfor %}
           </ol>
         </section>
 {% endif %}

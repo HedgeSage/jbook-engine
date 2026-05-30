@@ -89,7 +89,7 @@ def load_chapter_content(chapter_id: str) -> dict[str, Any]:
 
     # Takeaways
     if "Takeaways" in sections:
-        data["takeaways"] = _parse_list(sections["Takeaways"])
+        data["takeaways"] = [_md_inline(t) for t in _parse_list(sections["Takeaways"])]
 
     # Map note
     if "Map" in sections:
@@ -152,6 +152,14 @@ def _md_to_html(text: str) -> str:
             buf.append(stripped)
     flush()
     return "\n".join(result)
+
+
+def _md_inline(text: str) -> str:
+    """Convert inline markdown: **bold**, *italic*. No blocks.<br/>
+    Safe for use inside HTML elements that don't allow <p> nesting."""
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+    text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
+    return text
 
 
 def _parse_list(text: str) -> list[str]:
