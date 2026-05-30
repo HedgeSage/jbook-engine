@@ -103,11 +103,11 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 0.5rem;
-  text-decoration: none;
   color: inherit;
   padding: 0.8rem 0;
   border-bottom: 1px solid var(--border);
   transition: background 0.2s;
+  cursor: pointer;
 }
 .theme-row:hover { background: var(--bg-warm); }
 
