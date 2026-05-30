@@ -15,6 +15,16 @@
     <p class="subtitle">{{ theme.subtitle }}</p>
   </header>
 
+  {% if theme.framework %}
+  <section class="framework">
+    <p><span class="fw-drop"></span>{{ theme.framework.problem }}</p>
+    <p>{{ theme.framework.fixes }}</p>
+    <p>{{ theme.framework.features }}</p>
+    <p>{{ theme.framework.refactors }}</p>
+    <p>{{ theme.framework.cross }}</p>
+  </section>
+  {% endif %}
+
   <main class="theme-timeline">
     {% for node in theme.nodes %}
     {% set dc = atlas.dynasty_colors.get(node.dynasty, '#888') %}
