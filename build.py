@@ -401,7 +401,8 @@ def build(env: Environment, course_data: dict):
     (SITE / "source-map.html").write_text(source_map_html, encoding="utf-8")
     print(f"  ✓ source-map.html — {len(source_map)} modules")
 
-    # SVG lint (warning only, non-blocking)
+    # SVG auto-fix (correct common issues) then lint check
+    _run_svg_fix()
     _run_svg_lint()
 
 
@@ -625,6 +626,25 @@ def _run_svg_lint():
     else:
         issue_count = result.stdout.count("crosses rect") + result.stdout.count("overflow")
         print(f"  ⚠️  SVG lint: {issue_count} potential issues (see `python3 engine/svg_lint.py`)")
+
+
+def _run_svg_fix():
+    """Auto-fix common SVG layout issues before build."""
+    import subprocess
+    from pathlib import Path
+    fix_path = Path(__file__).parent / "svg_fix.py"
+    if not fix_path.exists():
+        return
+    chapters = sorted(Path("content/chapters").glob("*.md"))
+    if not chapters:
+        return
+    result = subprocess.run(
+        ["python3", str(fix_path)] + [str(c) for c in chapters],
+        capture_output=True, text=True
+    )
+    fixed = result.stdout.count("Fixed:")
+    if fixed:
+        print(f"  🔧 SVG auto-fix: {fixed} chapter(s) corrected")
 
 
 if __name__ == "__main__":
