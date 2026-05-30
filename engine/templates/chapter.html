@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ chapter.title }} | {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ asset_path }}styles.css?v={{ css_version }}">
+</head>
+<body>
+  <div class="site-layout">
+    {% include 'sidebar.html' %}
+    <div class="page-shell">
+      <main>
+        <div class="chapter-hero">
+          <p class="chapter-num">{{ module_label }} · {{ module.title }}</p>
+          <h1>{{ chapter.title }}</h1>
+          <p class="hero-lead">{{ chapter.description }}</p>
+{% if 'map_position' in chapter.components %}
+          <nav class="breadcrumb" aria-label="位置">
+            <a href="{{ asset_path }}index.html">{{ course.title }}</a>
+            <span class="breadcrumb-sep">›</span>
+            <a href="{{ asset_path }}modules/{{ module.slug }}.html">{{ module_label }} {{ module.title }}</a>
+            <span class="breadcrumb-sep">›</span>
+            <span>{{ chapter.title }}</span>
+          </nav>
+{% endif %}
+        </div>
+
+{% if 'scene' in chapter.components %}
+        <section class="story-section">
+          <p class="eyebrow">Scene</p>
+          <div class="story-block">
+            {{ chapter.scene | safe }}
+          </div>
+        </section>
+{% endif %}
+
+{% if 'exploded_view' in chapter.components and chapter.diagram %}
+        <section class="exploded-view">
+          <p class="eyebrow">Exploded View</p>
+          {{ chapter.diagram | safe }}
+        </section>
+{% endif %}
+
+{% if 'step_by_step' in chapter.components %}
+        <section class="explanation-block">
+          <p class="eyebrow">Mechanism</p>
+          <h2>逐层拆解</h2>
+          {% for expl in chapter.explanations %}
+          <div class="explanation-step">
+            <span class="step-label">{{ "%02d"|format(loop.index) }}</span>
+            <h3>{{ expl.heading }}</h3>
+            <p>{{ expl.body | safe }}</p>
+          </div>
+          {% endfor %}
+        </section>
+{% endif %}
+
+{% if 'try_in_story' in chapter.components and chapter.try_block %}
+        <section class="try-block">
+          <p class="eyebrow">Try it in the story</p>
+          <p class="question">{{ chapter.try_block.question }}</p>
+          {{ chapter.try_block.body | safe }}
+        </section>
+{% endif %}
+
+{% if 'math_minimal' in chapter.components and chapter.math_block %}
+        <section class="math-block">
+          <p class="eyebrow">Minimum Math</p>
+          <h3>{{ chapter.math_block.heading }}</h3>
+          <p>{{ chapter.math_block.intuition | safe }}</p>
+          <div class="formula">{{ chapter.math_block.formula }}</div>
+          <dl class="vars">
+            {% for v in chapter.math_block.variables %}
+            <dt>{{ v.symbol }}</dt><dd>{{ v.meaning }}</dd>
+            {% endfor %}
+          </dl>
+        </section>
+{% endif %}
+
+{% if 'pitfall' in chapter.components and chapter.pitfalls %}
+        <section class="pitfall-block">
+          <p class="eyebrow">Common traps</p>
+          <h2>常见误区</h2>
+          {% for p in chapter.pitfalls %}
+          <div class="pitfall-item">
+            <div class="pitfall-title">
+              <span class="icon">⚠️</span>
+              <strong>{{ p.mistake }}</strong>
+            </div>
+            <p class="correction">校正：{{ p.correction }}</p>
+            <p>为什么重要：{{ p.importance }}</p>
+          </div>
+          {% endfor %}
+        </section>
+{% endif %}
+
+{% if chapter.takeaways %}
+        <section class="takeaways">
+          <p class="eyebrow">What remains</p>
+          <h2>读完检查</h2>
+          <ol class="takeaway-list">
+            {% for t in chapter.takeaways %}<li>{{ t }}</li>{% endfor %}
+          </ol>
+        </section>
+{% endif %}
+
+
+{% if chapter.forward_hook %}
+        <div class="forward-hook">
+          <span class="arrow">↓</span>
+          {{ chapter.forward_hook }}
+        </div>
+{% endif %}
+
+        <div class="pager">
+          {% if prev_chapter %}
+          <a href="{{ asset_path }}chapters/{{ prev_chapter.id }}.html">← {{ prev_chapter.title }}</a>
+          {% else %}<span></span>{% endif %}
+          {% if next_chapter %}
+          <a href="{{ asset_path }}chapters/{{ next_chapter.id }}.html">{{ next_chapter.title }} →</a>
+          {% else %}<span></span>{% endif %}
+        </div>
+
+      </main>
+      <footer class="site-footer">
+        <p>基于 CFA Level I 讲义重构的金融与投资理解课程。不以考试冲刺为目标。</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

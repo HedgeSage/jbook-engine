@@ -1,0 +1,28 @@
+<aside class="site-sidebar">
+  <a class="sidebar-brand" href="{{ asset_path }}index.html">
+    {{ course.title }}
+    <span>{{ course.subtitle }}</span>
+  </a>
+  <nav>
+    <a class="sidebar-module{% if page_type == 'index' %} active{% endif %}" href="{{ asset_path }}index.html">
+      课程总览</oldText></oldText>
+    </a>
+    {% for mod in course.modules %}
+    <a class="sidebar-module{% if mod.id == module_id %} active{% endif %}" href="{{ asset_path }}modules/{{ mod.slug }}.html">
+      <span class="mod-num">{{ loop.index }}</span>{{ mod.title }}
+    </a>
+    {% if mod.id == module_id %}
+    <div class="sidebar-chapters">
+      {% for ch in mod.chapters %}
+      <a class="sidebar-chapter{% if ch.id == chapter_id %} active{% endif %}" href="{{ asset_path }}chapters/{{ ch.id }}.html">
+        {{ mod.id | int + 1 }}.{{ loop.index }} {{ ch.title }}
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+  </nav>
+  <div class="sidebar-sep"></div>
+  <a class="sidebar-tool" href="{{ asset_path }}concepts.html">核心概念</a>
+  <a class="sidebar-tool" href="{{ asset_path }}source-map.html">讲义映射</a>
+</aside>

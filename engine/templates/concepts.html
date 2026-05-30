@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>核心概念 | {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ asset_path }}styles.css?v={{ css_version }}">
+</head>
+<body>
+  <div class="site-layout">
+    {% include 'sidebar.html' %}
+    <div class="page-shell">
+      <main>
+        <div class="chapter-hero">
+          <h1>核心概念索引</h1>
+          <p class="hero-lead">不是术语词典，而是在不同章节之间来回跳转的地图。</p>
+        </div>
+
+        <div class="concept-list">
+          {% for c in concepts %}
+          <div class="concept-item">
+            <strong>{{ c.zh }}</strong>
+            <span class="en">{{ c.en }}</span>
+            <div class="desc">{{ c.module }} · {{ c.chapter }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </main>
+      <footer class="site-footer">
+        <p>基于 CFA Level I 讲义重构。</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ module.title }} | {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ asset_path }}styles.css?v={{ css_version }}">
+</head>
+<body>
+  <div class="site-layout">
+    {% include 'sidebar.html' %}
+    <div class="page-shell">
+      <main>
+        <div class="module-hero">
+          <p class="eyebrow">{{ module_label }}</p>
+          <h1>{{ module.title }}</h1>
+          <p class="big-question">{{ module.question }}</p>
+          {% if module.story_stage %}
+          <p class="story-blurb">{{ module.story_stage }}</p>
+          {% endif %}
+        </div>
+
+        <h2>本章路线</h2>
+        <div class="chapter-grid">
+        {% for ch in module.chapters %}
+        <a class="chapter-card" href="{{ asset_path }}chapters/{{ ch.id }}.html">
+          <span class="ch-num">{{ module.id | int + 1 }}.{{ loop.index }}</span>
+          <h3>{{ ch.title }}</h3>
+          {% if ch.description %}<p>{{ ch.description }}</p>{% endif %}
+        </a>
+        {% endfor %}
+        </div>
+
+        <div class="pager">
+          {% if prev_module %}
+          <a href="{{ asset_path }}modules/{{ prev_module.slug }}.html">← {{ prev_module.title }}</a>
+          {% else %}<span></span>{% endif %}
+          {% if next_module %}
+          <a href="{{ asset_path }}modules/{{ next_module.slug }}.html">{{ next_module.title }} →</a>
+          {% else %}<span></span>{% endif %}
+        </div>
+      </main>
+      <footer class="site-footer">
+        <p>基于 CFA Level I 讲义重构的金融与投资理解课程。</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

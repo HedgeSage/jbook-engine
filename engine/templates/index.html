@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ course.title }}</title>
+  <meta name="description" content="{{ course.subtitle }}">
+  <link rel="stylesheet" href="{{ asset_path }}styles.css?v={{ css_version }}">
+</head>
+<body>
+  <div class="site-layout">
+    {% include 'sidebar.html' %}
+    <div class="page-shell">
+      <main>
+        <div class="course-hero">
+          <p class="eyebrow">A narrative course in finance</p>
+          <h1>{{ course.title }}</h1>
+          <p class="subtitle">{{ course.subtitle }}</p>
+        </div>
+
+        {% if course.overview %}
+        <div class="story-block" style="font-size:var(--text-lg);line-height:1.9;">
+          {{ course.overview | safe }}
+        </div>
+        {% endif %}
+
+        {% if course.story_flow %}
+        <section class="story-map">
+          <h2>课程不是目录，是陈一诺的旅程</h2>
+          {{ course.story_flow | safe }}
+        </section>
+        {% endif %}
+
+        <h2>十大模块</h2>
+        <div class="module-grid">
+          {% for mod in course.modules %}
+          <a class="module-row" href="{{ asset_path }}modules/{{ mod.slug }}.html">
+            <div class="mod-marker">{{ mod.id | int + 1 }}</div>
+            <div class="mod-info">
+              <h3>{{ mod.title }}</h3>
+              <p>{{ mod.question }}</p>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+
+        {% if course.lenses %}
+        <h2>也可以从三条线索读</h2>
+        <div class="lens-nav">
+          {% for lens in course.lenses %}
+          <div class="lens-card {{ lens.theme }}">
+            <h3>{{ lens.emoji }} {{ lens.title }}</h3>
+            <p>{{ lens.description }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </main>
+      <footer class="site-footer">
+        <p>基于 CFA Level I 讲义重构。当前资料未包含独立 Ethics 模块。</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

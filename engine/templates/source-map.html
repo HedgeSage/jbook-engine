@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>讲义映射 | {{ course.title }}</title>
+  <link rel="stylesheet" href="{{ asset_path }}styles.css?v={{ css_version }}">
+</head>
+<body>
+  <div class="site-layout">
+    {% include 'sidebar.html' %}
+    <div class="page-shell">
+      <main>
+        <div class="chapter-hero">
+          <p class="eyebrow">Source Map</p>
+          <h1>原讲义到新课程的映射</h1>
+          <p class="hero-lead">新课程不按原科目顺序推进，但必须覆盖 89 课讲义的知识范围。点击编号可跳转原视频。</p>
+        </div>
+
+        <div class="table-wrap">
+          <table class="source-table">
+            <thead>
+              <tr>
+                <th>原始科目</th>
+                <th>原讲义范围</th>
+                <th>新课程位置</th>
+                <th>处理方式</th>
+              </tr>
+            </thead>
+            <tbody>
+{% for row in source_map %}
+              <tr>
+                <td data-label="原始科目">{{ row.topic }}</td>
+                <td data-label="原讲义范围">
+                  <span class="source-group">
+{% for link in row.links %}
+                    <a class="source-link" href="{{ link.url }}" target="_blank" rel="noopener noreferrer" title="{{ link.title }}">{{ link.label }}</a>{% if not loop.last %}{% endif %}
+{% endfor %}
+                  </span>
+                </td>
+                <td data-label="新课程位置">{{ row.course_position }}</td>
+                <td data-label="处理方式">{{ row.approach }}</td>
+              </tr>
+{% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="takeaways" style="margin-top:var(--space-2xl)">
+          <p class="eyebrow">覆盖说明</p>
+          <p style="font-size:var(--text-sm);color:var(--color-text-muted)">
+            当前本地资料没有独立 Ethics 模块，因此本网站第一版不会声称覆盖完整 CFA Level I 考试体系。
+          </p>
+        </div>
+      </main>
+      <footer class="site-footer">
+        <p>基于本地 89 课 CFA Level I 讲义重构。当前资料未包含独立 Ethics 模块。</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
