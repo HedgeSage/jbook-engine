@@ -155,13 +155,16 @@ def _md_to_html(text: str) -> str:
 
 
 def _parse_list(text: str) -> list[str]:
-    """Parse bullet list items."""
+    """Parse bullet list items. Strips leading numeric prefixes
+    like '1. ', '2、', '3) ' since the template wraps items in <ol>."""
     items = []
     for line in text.strip().split("\n"):
         line = line.strip()
         if line.startswith("- "):
             items.append(line[2:])
         elif line and not line.startswith("#"):
+            # Strip numbered prefix: "1. text" → "text"
+            line = re.sub(r"^\d+[.、)]\s*", "", line)
             items.append(line)
     return items
 
