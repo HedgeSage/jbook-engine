@@ -97,6 +97,9 @@ def _expand_viewbox_for_text(svg_text: str) -> str:
 
 def _trim_lines_to_rect_edges(svg_text: str) -> str:
     """Trim lines so endpoints don't penetrate rect interiors."""
+    # Skip if SVG is marked as intentional chart (interior lines are data, not bugs)
+    if 'svg:chart' in svg_text.lower():
+        return svg_text
     rect_pattern = re.compile(
         r'<rect[^>]*\bx="([^"]*)"\s+y="([^"]*)"\s+width="([^"]*)"\s+height="([^"]*)"[^>]*>'
     )

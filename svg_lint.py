@@ -113,7 +113,10 @@ def check_chapter(filepath: str) -> list[str]:
             if t["est_x2"] > vb_x + vb_w + max(20, vb_w * 0.05):
                 issues.append(f"  {prefix}: text '{t['content'][:40]}' may overflow viewBox (est right {t['est_x2']:.0f} > {vb_x+vb_w:.0f})")
 
-        # Check lines vs rects (skip lines fully contained within their parent rect)
+        # Check lines vs rects (skip lines fully contained within their parent rect,
+        # and skip entire SVG if marked as intentional chart with <!-- svg:chart -->)
+        if 'svg:chart' in svg_text.lower():
+            continue  # skip line-rect checks for chart SVGs
         for line in lines:
             for rect in rects:
                 # Skip: line is fully inside the rect (internal element like chart line)
