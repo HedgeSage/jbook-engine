@@ -317,6 +317,23 @@ def build(env: Environment, course_data: dict):
 
             # Merge YAML metadata with content data
             merged = {**ch, **chapter_data}
+
+            # Auto-populate components flag from parsed content
+            if "components" not in merged:
+                merged["components"] = []
+                if chapter_data.get("scene"):
+                    merged["components"].append("scene")
+                if chapter_data.get("diagram"):
+                    merged["components"].append("exploded_view")
+                if chapter_data.get("explanations"):
+                    merged["components"].append("step_by_step")
+                if chapter_data.get("try_block"):
+                    merged["components"].append("try_in_story")
+                if chapter_data.get("math_block"):
+                    merged["components"].append("math_minimal")
+                if chapter_data.get("pitfalls"):
+                    merged["components"].append("pitfall")
+
             # Ensure forward_hook from YAML is used if not in MD
             if "forward_hook" not in merged and ch.get("forward_hook"):
                 merged["forward_hook"] = ch["forward_hook"]
