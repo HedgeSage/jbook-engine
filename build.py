@@ -456,9 +456,129 @@ def build(env: Environment, course_data: dict):
     _run_svg_lint()
 
 
+# ── Atlas Build Mode ──
+
+def load_atlas() -> dict:
+    """Load atlas.yml into structured data."""
+    path = CONTENT / "atlas.yml"
+    if not path.exists():
+        return None
+    with open(path) as f:
+        return yaml.safe_load(f)
+
+
+def load_node_content(node_id: str) -> str:
+    """Load a node's markdown content and convert to HTML."""
+    path = CONTENT / "nodes" / f"{node_id}.md"
+    if not path.exists():
+        return "<p><em>内容待补充</em></p>"
+    text = path.read_text(encoding="utf-8")
+    return _md_to_html(text)
+
+
+def _find_cross_refs(node: dict, all_themes: list, current_theme_id: str, window: int = 30) -> list[dict]:
+    """Find nodes in other themes within ±window years of this node."""
+    refs = []
+    for theme in all_themes:
+        if theme["id"] == current_theme_id:
+            continue
+        for n in theme["nodes"]:
+            if abs(n["year"] - node["year"]) <= window and n["id"] != node["id"]:
+                refs.append({
+                    "id": n["id"],
+                    "title": n["title"],
+                    "theme_title": theme["title"],
+                    "color": theme["color"],
+                    "year": n["year"],
+                })
+    return sorted(refs, key=lambda r: abs(r["year"] - node["year"]))[:4]
+
+
+def add_scholarly_templates(env: Environment):
+    """Register scholarly template directory with Jinja2."""
+    scholarly_dir = Path(__file__).parent / "templates" / "scholarly"
+    if scholarly_dir.exists():
+        # Use a custom loader that searches both base and scholarly dirs
+        from jinja2 import ChoiceLoader, FileSystemLoader
+        original_loader = env.loader
+        scholarly_loader = FileSystemLoader(str(scholarly_dir))
+        env.loader = ChoiceLoader([scholarly_loader, original_loader])
+
+
+def atlas_build(env: Environment, atlas_data: dict):
+    """Build an atlas-mode site: index (river), theme pages, node pages."""
+    atlas = atlas_data["atlas"]
+    css_version = _git_short_hash()
+    dynasties = atlas["dynasties"]
+    themes = atlas["themes"]
+    asset_path = ""
+
+    # Build index
+    index_html = env.get_template("scholarly/index.html").render(
+        css_version=css_version,
+        atlas=atlas,
+        dynasties=dynasties,
+        themes=themes,
+        asset_path=asset_path,
+    )
+    (SITE / "index.html").write_text(index_html, encoding="utf-8")
+    print(f"  ✓ index.html — {len(themes)} 条脉络")
+
+    # Build theme pages
+    for theme in themes:
+        theme_html = env.get_template("scholarly/theme.html").render(
+            css_version=css_version,
+            atlas=atlas,
+            theme=theme,
+            asset_path=asset_path,
+        )
+        (SITE / f"theme-{theme['id']}.html").write_text(theme_html, encoding="utf-8")
+        print(f"  ✓ theme-{theme['id']}.html — {theme['title']} ({len(theme['nodes'])} 节点)")
+
+    # Build node pages
+    for theme in themes:
+        nodes = theme["nodes"]
+        for i, node in enumerate(nodes):
+            node["content"] = load_node_content(node["id"])
+            prev_node = nodes[i - 1] if i > 0 else None
+            next_node = nodes[i + 1] if i < len(nodes) - 1 else None
+            cross_refs = _find_cross_refs(node, themes, theme["id"])
+
+            node_html = env.get_template("scholarly/node.html").render(
+                css_version=css_version,
+                atlas=atlas,
+                theme=theme,
+                node=node,
+                prev_node=prev_node,
+                next_node=next_node,
+                cross_refs=cross_refs,
+                asset_path=asset_path,
+            )
+            (SITE / f"node-{node['id']}.html").write_text(node_html, encoding="utf-8")
+        print(f"  ✓ {theme['title']}: {len(nodes)} 节点文章")
+
+    # Copy CSS
+    css_src = Path(__file__).parent / "styles" / "scholarly.css"
+    css_dst = SITE / "styles" / "scholarly.css"
+    css_dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(css_src, css_dst)
+    print(f"  ✓ styles/scholarly.css")
+
+
 def main():
     print("Building CFA course site...\n")
     env = Environment(loader=FileSystemLoader(str(TEMPLATES)), autoescape=False)
+
+    # Atlas mode: detect atlas.yml
+    atlas_data = load_atlas()
+    if atlas_data:
+        print(f"Building atlas: {atlas_data['atlas']['title']}\n")
+        add_scholarly_templates(env)
+        atlas_build(env, atlas_data)
+        print(f"\n✨ Done. Site at {SITE}/")
+        return
+
+    # Course mode
     course_data = load_course()
 
     # Inject overview, story_flow, lenses from content/index.md

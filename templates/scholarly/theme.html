@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ theme.title }} | {{ atlas.title }}</title>
+  <link rel="stylesheet" href="../styles/scholarly.css?v={{ css_version }}">
+</head>
+<body>
+  <header class="atlas-header">
+    <nav class="breadcrumb">
+      <a href="index.html">← {{ atlas.title }}</a>
+    </nav>
+    <h1>{{ theme.title }}</h1>
+    <p class="subtitle">{{ theme.subtitle }}</p>
+  </header>
+
+  <div class="theme-timeline-view">
+    <!-- Horizontal scroll timeline -->
+    <div class="timeline-scroll" id="timeline-scroll">
+      <div class="timeline-track">
+        {% set min_year = theme.nodes[0].year - 20 %}
+        {% set max_year = theme.nodes[-1].year + 20 %}
+        {% set span = max_year - min_year %}
+
+        {% for node in theme.nodes %}
+        {% set pos = (node.year - min_year) / span * 100 %}
+        <div class="timeline-node{% if loop.index == 1 %} active{% endif %}"
+             style="left: {{ '%.1f' | format(pos) }}%;"
+             data-node-id="{{ node.id }}">
+          <div class="node-marker" style="background:{{ theme.color }}"></div>
+          <div class="node-card">
+            <span class="node-year">{{ node.dynasty }} · {{ node.year }}年</span>
+            <h3>{{ node.title }}</h3>
+            {% if node.summary %}<p>{{ node.summary }}</p>{% endif %}
+            <a href="node-{{ node.id }}.html" class="read-link">深入阅读 →</a>
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- Base line -->
+        <svg class="timeline-line" preserveAspectRatio="none" viewBox="0 0 {{ span * 10 }} 2">
+          <line x1="0" y1="1" x2="{{ span * 10 }}" y2="1"
+                stroke="#444" stroke-width="1"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Node preview panel (JS-driven) -->
+    <div class="node-preview" id="node-preview">
+      <p class="hint">← 沿时间线滑动，点击节点进入全文</p>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="index.html">回到主题脉络图</a>
+  </nav>
+
+  <script>
+  // Simple preview on hover/click
+  document.querySelectorAll('.timeline-node').forEach(n => {
+    n.addEventListener('mouseenter', () => {
+      const card = n.querySelector('.node-card h3');
+      const preview = document.getElementById('node-preview');
+      if (card) {
+        const title = card.textContent;
+        const year = n.querySelector('.node-year').textContent;
+        preview.innerHTML = `<h2>${title}</h2><p class="year-tag">${year}</p><p>点击节点进入完整文章</p>`;
+        preview.classList.add('active');
+      }
+    });
+    n.addEventListener('mouseleave', () => {
+      const preview = document.getElementById('node-preview');
+      preview.classList.remove('active');
+    });
+  });
+  </script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ node.title }} | {{ theme.title }} | {{ atlas.title }}</title>
+  <link rel="stylesheet" href="../styles/scholarly.css?v={{ css_version }}">
+</head>
+<body>
+  <article class="node-article">
+    <header class="article-header">
+      <nav class="breadcrumb">
+        <a href="index.html">{{ atlas.title }}</a>
+        <span class="breadcrumb-sep">›</span>
+        <a href="theme-{{ theme.id }}.html">{{ theme.title }}</a>
+      </nav>
+      <h1>{{ node.title }}</h1>
+      <p class="article-meta">{{ node.dynasty }} · {{ node.year }}年</p>
+    </header>
+
+    <div class="article-body">
+      {{ node.content | safe }}
+    </div>
+
+    <!-- Cross references: same-period nodes in other themes -->
+    {% if cross_refs %}
+    <aside class="cross-refs">
+      <h2>同一时期</h2>
+      <ul>
+        {% for ref in cross_refs %}
+        <li>
+          <a href="node-{{ ref.id }}.html">
+            <span class="ref-theme" style="color:{{ ref.color }}">{{ ref.theme_title }}</span>
+            <span class="ref-title">{{ ref.title }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </aside>
+    {% endif %}
+
+    <footer class="node-nav">
+      {% if prev_node %}
+      <a class="nav-prev" href="node-{{ prev_node.id }}.html">← {{ prev_node.title }}</a>
+      {% else %}<span></span>{% endif %}
+      <a class="nav-theme" href="theme-{{ theme.id }}.html">回到 {{ theme.title }} 时间线</a>
+      {% if next_node %}
+      <a class="nav-next" href="node-{{ next_node.id }}.html">{{ next_node.title }} →</a>
+      {% else %}<span></span>{% endif %}
+    </footer>
+  </article>
+</body>
+</html>
