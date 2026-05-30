@@ -563,3 +563,17 @@ body {
   .tl-dynasty { font-size: 0.65rem; padding: 0.1rem 0.4rem; }
   .tl-card h2 { font-size: 0.95rem; }
 }
+
+/* ── Index: theme track background link ── */
+.track-link {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.track-link:hover ~ .theme-line,
+.track-link:hover ~ .node-dot .dot-marker {
+  /* subtle highlight on hover over empty track area */
+}
+.node-dot {
+  z-index: 2;
+}

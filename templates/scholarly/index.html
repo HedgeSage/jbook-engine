@@ -36,16 +36,18 @@
           <span class="theme-name">{{ theme.title }}</span>
           <span class="theme-subtitle">{{ theme.subtitle }}</span>
         </a>
-        <a class="theme-track" href="theme-{{ theme.id }}.html">
+        <div class="theme-track">
+          <a class="track-link" href="theme-{{ theme.id }}.html" aria-hidden="true"></a>
           {% for node in theme.nodes %}
           {% set pos = (node.year - dynasties[0][1]) / total_span * 100 %}
-          <a class="node-dot" href="node-{{ node.id }}.html"
+          <a class="node-dot"
+             href="node-{{ node.id }}.html"
              style="left: {{ '%.1f' | format(pos) }}%;"
-             title="{{ node.dynasty }} · {{ node.title }}">
+             title="{{ node.title }} ({{ node.year }})">
             <span class="dot-marker" style="background:{{ theme.color }}"></span>
-            <span class="dot-tooltip">
-              <small>{{ node.dynasty }}</small>
+            <span class="node-tooltip">
               <strong>{{ node.title }}</strong>
+              <em>{{ node.dynasty }} · {{ node.year }}年</em>
             </span>
           </a>
           {% endfor %}
@@ -54,7 +56,7 @@
             <polyline points="{% for node in theme.nodes %}{% set x = (node.year - dynasties[0][1]) / total_span * 1000 %}{{ '%.0f' | format(x) }},10 {% endfor %}"
                       fill="none" stroke="{{ theme.color }}" stroke-width="2" stroke-opacity="0.4"/>
           </svg>
-        </a>
+        </div>
       </div>
       {% endfor %}
     </div>
