@@ -513,6 +513,9 @@ def atlas_build(env: Environment, atlas_data: dict):
     themes = atlas["themes"]
     asset_path = ""
 
+    # Ensure output directories
+    SITE.mkdir(parents=True, exist_ok=True)
+
     # Build index
     index_html = env.get_template("scholarly/index.html").render(
         css_version=css_version,
