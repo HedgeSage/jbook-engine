@@ -553,17 +553,6 @@ body {
 
 
 
-/* ── Framework (reading primer above timeline) ── */
-.framework {
-  max-width: 42rem;
-  margin: 0 auto 3rem;
-  padding: 2rem 2rem 0;
-  font-family: var(--serif);
-  font-size: 0.95rem;
-  line-height: 1.9;
-  color: var(--ink-light);
-  position: relative;
-}
 .framework p {
   margin-bottom: 1.2rem;
   text-indent: 2em;
@@ -581,4 +570,28 @@ body {
   padding-top: 0.05em;
   color: var(--accent);
   font-weight: 700;
+}
+
+/* ── Framework (reading primer above timeline) ── */
+.framework {
+  max-width: 38rem;
+  margin: 0 auto 3rem;
+  padding: 0 2rem;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  line-height: 1.9;
+  color: var(--ink-light);
+}
+.framework h2 {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 1.8rem 0 0.4rem;
+  letter-spacing: 0.05em;
+}
+.framework h2:first-child { margin-top: 0; }
+.framework p {
+  margin-bottom: 0.4rem;
+  text-indent: 2em;
 }
