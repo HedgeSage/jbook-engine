@@ -34,7 +34,7 @@ def _git_short_hash() -> str:
     try:
         return subprocess.check_output(
             ["git", "rev-parse", "--short", "HEAD"],
-            cwd=ROOT, stderr=subprocess.DEVNULL
+            cwd=Path(__file__).parent, stderr=subprocess.DEVNULL
         ).decode().strip()
     except Exception:
         return "dev"
