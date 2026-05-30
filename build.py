@@ -258,18 +258,40 @@ def _parse_pitfalls(text: str) -> list[dict]:
 
 
 def _parse_one_pitfall(mistake: str, body: str) -> dict:
-    body_lines = body.split("\n")
+    """Parse a single pitfall. Supports labeled (校正：/为什么重要：)
+    and unlabeled (body-only) formats."""
+    text = body.strip()
+    if not text:
+        return {"mistake": mistake, "correction": "", "importance": ""}
+
     correction = ""
     importance = ""
-    for line in body_lines:
-        s = line.strip()
-        if s.startswith("校正") or s.startswith("纠正"):
-            correction = re.sub(r"^[校正纠正]+[：:]?\s*", "", s)
-        elif s.startswith("重要") or s.startswith("为什么"):
-            importance = re.sub(r"^[重要为什么]+[性：:]?\s*", "", s)
-        elif correction:
-            importance = s
-    return {"mistake": mistake, "correction": correction, "importance": importance}
+
+    # Match labeled headers: 校正：, 纠正：, **纠正**：, **校正**：
+    corr_pat = r"(?:^|。|\n)\*?\*?[校正纠正]+\*?\*?\s*[：:]\s*"
+    imp_pat = r"(?:^|。|\n)\*?\*?(?:为什么重要|重要性)\*?\*?\s*[：:]\s*"
+
+    # Split on correction marker
+    parts = re.split(corr_pat, text, maxsplit=1)
+    if len(parts) > 1:
+        correction = parts[1]
+        imp_parts = re.split(imp_pat, correction, maxsplit=1)
+        if len(imp_parts) > 1:
+            correction = imp_parts[0].strip()
+            importance = imp_parts[1].strip()
+        else:
+            correction = correction.strip()
+    else:
+        # No labeled correction — try importance-only split
+        imp_parts = re.split(imp_pat, text, maxsplit=1)
+        if len(imp_parts) > 1:
+            correction = imp_parts[0].strip()
+            importance = imp_parts[1].strip()
+        else:
+            # No labels at all — treat whole body as correction
+            correction = text
+
+    return {"mistake": mistake, "correction": correction.strip(), "importance": importance.strip()}
 
 
 # ── Build ──
