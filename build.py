@@ -510,17 +510,17 @@ def add_scholarly_templates(env: Environment):
 
 
 def atlas_build(env: Environment, atlas_data: dict):
-    """Build an atlas-mode site: index (river), theme pages, node pages."""
+    """Build an atlas-mode site: index (category river), theme timeline,
+    category vertical timeline, node pages."""
     atlas = atlas_data["atlas"]
     css_version = _git_short_hash()
     dynasties = atlas["dynasties"]
     themes = atlas["themes"]
     asset_path = ""
 
-    # Ensure output directories
     SITE.mkdir(parents=True, exist_ok=True)
 
-    # Build index
+    # Build index — shows category dots per theme row
     index_html = env.get_template("scholarly/index.html").render(
         css_version=css_version,
         atlas=atlas,
@@ -531,38 +531,57 @@ def atlas_build(env: Environment, atlas_data: dict):
     (SITE / "index.html").write_text(index_html, encoding="utf-8")
     print(f"  ✓ index.html — {len(themes)} 条脉络")
 
-    # Build theme pages
+    # Build category pages (vertical timeline) + collect all nodes
+    all_nodes = []  # (theme, node_dict)
     for theme in themes:
-        theme_html = env.get_template("scholarly/theme.html").render(
-            css_version=css_version,
-            atlas=atlas,
-            theme=theme,
-            asset_path=asset_path,
-        )
-        (SITE / f"theme-{theme['id']}.html").write_text(theme_html, encoding="utf-8")
-        print(f"  ✓ theme-{theme['id']}.html — {theme['title']} ({len(theme['nodes'])} 节点)")
+        for cat in theme["categories"]:
+            # Resolve node IDs to full node data
+            cat_nodes = []
+            for nid in cat["nodes"]:
+                # Find the node in the old-style nodes list (backward compat)
+                node = next((n for n in theme.get("nodes", []) if n["id"] == nid), None)
+                if node:
+                    node["theme_color"] = theme["color"]
+                    node["theme_title"] = theme["title"]
+                    cat_nodes.append(node)
+                    all_nodes.append((theme, node))
 
-    # Build node pages
-    for theme in themes:
-        nodes = theme["nodes"]
-        for i, node in enumerate(nodes):
-            node["content"] = load_node_content(node["id"])
-            prev_node = nodes[i - 1] if i > 0 else None
-            next_node = nodes[i + 1] if i < len(nodes) - 1 else None
-            cross_refs = _find_cross_refs(node, themes, theme["id"])
-
-            node_html = env.get_template("scholarly/node.html").render(
+            # Build category page
+            cat_html = env.get_template("scholarly/category.html").render(
                 css_version=css_version,
                 atlas=atlas,
                 theme=theme,
-                node=node,
-                prev_node=prev_node,
-                next_node=next_node,
-                cross_refs=cross_refs,
+                category=cat,
+                nodes=cat_nodes,
                 asset_path=asset_path,
             )
-            (SITE / f"node-{node['id']}.html").write_text(node_html, encoding="utf-8")
-        print(f"  ✓ {theme['title']}: {len(nodes)} 节点文章")
+            (SITE / f"category-{theme['id']}-{cat['id']}.html").write_text(cat_html, encoding="utf-8")
+        print(f"  ✓ {theme['title']}: {len(theme['categories'])} 分类")
+
+    # Build node pages
+    for theme, node in all_nodes:
+        node["content"] = load_node_content(node["id"])
+        # Find prev/next node
+        all_nodes_flat = [n for t, n in all_nodes if t["id"] == theme["id"]]
+        idx = all_nodes_flat.index(node)
+        prev_node = all_nodes_flat[idx - 1] if idx > 0 else None
+        next_node = all_nodes_flat[idx + 1] if idx < len(all_nodes_flat) - 1 else None
+        cross_refs = _find_cross_refs(node, themes, theme["id"])
+
+        node_html = env.get_template("scholarly/node.html").render(
+            css_version=css_version,
+            atlas=atlas,
+            theme=theme,
+            node=node,
+            prev_node=prev_node,
+            next_node=next_node,
+            cross_refs=cross_refs,
+            asset_path=asset_path,
+        )
+        (SITE / f"node-{node['id']}.html").write_text(node_html, encoding="utf-8")
+
+    total_nodes = len(all_nodes)
+    print(f"  ✓ {total_nodes} 节点文章")
 
     # Copy CSS
     css_src = Path(__file__).parent / "styles" / "scholarly.css"

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ category.title }} · {{ theme.title }} | {{ atlas.title }}</title>
+  <link rel="stylesheet" href="../styles/scholarly.css?v={{ css_version }}">
+</head>
+<body>
+  <header class="atlas-header">
+    <nav class="breadcrumb">
+      <a href="index.html">{{ atlas.title }}</a>
+    </nav>
+    <h1>{{ theme.title }}</h1>
+    <p class="subtitle">{{ category.title }} — {{ category.desc }}</p>
+  </header>
+
+  <main class="vertical-timeline">
+    {% for node in nodes %}
+    <article class="vt-entry {% if loop.index is odd %}vt-left{% else %}vt-right{% endif %}">
+      <div class="vt-marker" style="background:{{ theme.color }}">
+        <span class="vt-year">{{ node.dynasty }}<br>{{ node.year }}</span>
+      </div>
+      <div class="vt-card">
+        <h2><a href="node-{{ node.id }}.html">{{ node.title }}</a></h2>
+        {% if node.summary %}<p>{{ node.summary }}</p>{% endif %}
+      </div>
+    </article>
+    {% endfor %}
+
+    <div class="vt-line"></div>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="index.html">回到主题脉络图</a>
+  </nav>
+</body>
+</html>
