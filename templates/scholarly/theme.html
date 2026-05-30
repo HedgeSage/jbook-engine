@@ -17,15 +17,10 @@
 
   {% if theme.framework %}
   <section class="framework">
-    <h2>核心矛盾</h2>
-    <p>{{ theme.framework.problem }}</p>
-    <h2>修补逻辑</h2>
+    <p><span class="fw-drop"></span>{{ theme.framework.problem }}</p>
     <p>{{ theme.framework.fixes }}</p>
-    <h2>制度创设</h2>
     <p>{{ theme.framework.features }}</p>
-    <h2>结构重构</h2>
     <p>{{ theme.framework.refactors }}</p>
-    <h2>脉络交叉</h2>
     <p>{{ theme.framework.cross }}</p>
   </section>
   {% endif %}
