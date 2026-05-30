@@ -287,7 +287,11 @@ def build(env: Environment, course_data: dict):
     (SITE / "chapters").mkdir(exist_ok=True)
     (SITE / "modules").mkdir(exist_ok=True)
 
-    # Copy assets
+    # Copy assets: engine base styles.css + book overrides
+    engine_css = ROOT / "engine" / "styles.css"  # from jbook-engine submodule
+    if engine_css.exists():
+        shutil.copy2(engine_css, SITE / "styles.css")
+    # Book-specific assets (can override engine defaults)
     if ASSETS.exists():
         for f in ASSETS.iterdir():
             dest = SITE / f.name
