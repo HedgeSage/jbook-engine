@@ -13,54 +13,76 @@
     <p class="subtitle">{{ atlas.subtitle }}</p>
   </header>
 
-  <main class="timeline-river">
-    <!-- Dynasty axis -->
-    <div class="dynasty-axis">
-      <div class="axis-strip">
-        {% set total_span = dynasties[-1][2] - dynasties[0][1] %}
-        {% for d in dynasties %}
-        {% set w = (d[2] - d[1]) / total_span * 100 %}
-        {% set left = (d[1] - dynasties[0][1]) / total_span * 100 %}
-        <div class="dynasty-band" style="left: {{ '%.1f' | format(left) }}%; width: {{ '%.1f' | format(w) }}%;">
-          <span class="dynasty-label">{{ d[0] }}</span>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
+  <!-- ── Pentagon System Map ── -->
+  <section class="pentagon-map">
+    <svg viewBox="0 0 640 520" class="pentagon-svg" aria-label="五脉络系统关系图">
+      <!-- Center text -->
+      <text x="320" y="260" text-anchor="middle" class="pm-center">
+        <tspan x="320" y="250" class="pm-center-main">帝制中国</tspan>
+        <tspan x="320" y="275" class="pm-center-sub">五大核心子系统</tspan>
+      </text>
 
-    <!-- Theme rows -->
-    <div class="theme-rows">
-      {% for theme in themes %}
-      <div class="theme-row" onclick="location.href='theme-{{ theme.id }}.html'">
-        <div class="theme-label">
-          <span class="theme-dot" style="background:{{ theme.color }}"></span>
-          <span class="theme-name">{{ theme.title }}</span>
-          <span class="theme-subtitle">{{ theme.subtitle }}</span>
+      <!-- Connecting lines between all vertices (dim, partial) -->
+      {% set pent_v = [
+        {'x':320, 'y':100,  'dx':0,   'dy':-1},
+        {'x':473, 'y':211, 'dx':1,   'dy':0},
+        {'x':394, 'y':389, 'dx':1,   'dy':1},
+        {'x':246, 'y':389, 'dx':-1,  'dy':1},
+        {'x':167, 'y':211, 'dx':-1,  'dy':0}
+      ] %}
+      {% for i in range(5) %}
+        {% for j in range(i+1, 5) %}
+        <line x1="{{ pent_v[i].x }}" y1="{{ pent_v[i].y }}"
+              x2="{{ pent_v[j].x }}" y2="{{ pent_v[j].y }}"
+              stroke="var(--border)" stroke-width="0.5" stroke-dasharray="4,4" opacity="0.5"/>
+        {% endfor %}
+      {% endfor %}
+
+      <!-- Vertex nodes -->
+      {% for i in range(5) %}
+      {% set t = themes[i] %}
+      <!-- Vertex glow -->
+      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="28" fill="{{ t.color }}" opacity="0.12"/>
+      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="14" fill="{{ t.color }}" opacity="0.25"/>
+      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="6" fill="{{ t.color }}"/>
+
+      <!-- Title label -->
+      {% set lx = pent_v[i].x + pent_v[i].dx * 120 %}
+      {% set ly = pent_v[i].y + pent_v[i].dy * 60 %}
+      <a href="theme-{{ t.id }}.html" class="pm-link">
+        <text x="{{ lx }}" y="{{ ly }}" text-anchor="middle" class="pm-title">{{ t.title }}</text>
+        <text x="{{ lx }}" y="{{ ly + 20 }}" text-anchor="middle" class="pm-sub">{{ t.subtitle }}</text>
+      </a>
+      {% endfor %}
+    </svg>
+  </section>
+
+  <!-- ── Five Horizontal Bands ── -->
+  <section class="theme-bands">
+    {% for theme in themes %}
+    <a class="band-row" href="theme-{{ theme.id }}.html">
+      <div class="band-accent" style="background:{{ theme.color }}"></div>
+      <div class="band-body">
+        <div class="band-header">
+          <span class="band-dot" style="background:{{ theme.color }}"></span>
+          <h2 class="band-title">{{ theme.title }}</h2>
+          <span class="band-tag">{{ theme.nodes | length }} 节点</span>
         </div>
-        <div class="theme-track">
-          {% for node in theme.nodes %}
-          {% set pos = (node.year - dynasties[0][1]) / total_span * 100 %}
-          <a class="node-dot"
-             href="node-{{ node.id }}.html"
-             style="left: {{ '%.1f' | format(pos) }}%; background:{{ theme.color }}"
-             title="{{ node.title }} ({{ node.year }})"
-             onclick="event.stopPropagation()">
-            <span class="node-tooltip">
-              <strong>{{ node.title }}</strong>
-              <em>{{ node.dynasty }} · {{ node.year }}年</em>
-            </span>
-          </a>
-          {% endfor %}
-          <!-- Connecting line -->
-          <svg class="theme-line" preserveAspectRatio="none" viewBox="0 0 1000 20">
-            <polyline points="{% for node in theme.nodes %}{% set x = (node.year - dynasties[0][1]) / total_span * 1000 %}{{ '%.0f' | format(x) }},10 {% endfor %}"
-                      fill="none" stroke="{{ theme.color }}" stroke-width="2" stroke-opacity="0.4"/>
-          </svg>
+        <p class="band-tension">{{ theme.framework.tension | truncate(120, true) }}</p>
+        <div class="band-meta">
+          {% set years = theme.nodes | map(attribute='year') | list | sort %}
+          <span class="band-span">{{ years[0] }}年 → {{ years[-1] }}年</span>
+          <span class="band-dynasties">
+            {% for d in theme.nodes | map(attribute='dynasty') | unique | list %}
+            <span class="dyn-tag" style="background:{{ atlas.dynasty_colors.get(d, '#888') }}20; color:{{ atlas.dynasty_colors.get(d, '#888') }}">{{ d }}</span>
+            {% endfor %}
+          </span>
         </div>
       </div>
-      {% endfor %}
-    </div>
-  </main>
+      <div class="band-arrow">→</div>
+    </a>
+    {% endfor %}
+  </section>
 
   <footer class="atlas-footer">
     <p>基于二十四史的材料梳理与结构分析。内容持续生长中。</p>

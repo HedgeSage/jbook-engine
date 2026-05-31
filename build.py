@@ -520,6 +520,13 @@ def atlas_build(env: Environment, atlas_data: dict):
 
     SITE.mkdir(parents=True, exist_ok=True)
 
+    # Clean stale node/theme HTML from previous builds
+    for f in SITE.glob("node-*.html"):
+        f.unlink()
+    for f in SITE.glob("theme-*.html"):
+        f.unlink()
+    print("  🧹 cleaned stale files")
+
     # Build index — shows node dots per theme row
     index_html = env.get_template("scholarly/index.html").render(
         css_version=css_version,
