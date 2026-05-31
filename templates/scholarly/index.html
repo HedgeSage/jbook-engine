@@ -15,20 +15,20 @@
 
   <!-- ── Pentagon System Map ── -->
   <section class="pentagon-map">
-    <svg viewBox="0 0 640 520" class="pentagon-svg" aria-label="五脉络系统关系图">
+    <svg viewBox="0 0 800 600" class="pentagon-svg" aria-label="五脉络系统关系图">
       <!-- Center text -->
-      <text x="320" y="260" text-anchor="middle" class="pm-center">
-        <tspan x="320" y="250" class="pm-center-main">帝制中国</tspan>
-        <tspan x="320" y="275" class="pm-center-sub">五大核心子系统</tspan>
+      <text x="400" y="300" text-anchor="middle" class="pm-center">
+        <tspan x="400" y="288" class="pm-center-main">帝制中国</tspan>
+        <tspan x="400" y="318" class="pm-center-sub">五大核心子系统</tspan>
       </text>
 
-      <!-- Connecting lines between all vertices (dim, partial) -->
+      <!-- Connecting lines between all vertices -->
       {% set pent_v = [
-        {'x':320, 'y':100,  'dx':0,   'dy':-1},
-        {'x':473, 'y':211, 'dx':1,   'dy':0},
-        {'x':394, 'y':389, 'dx':1,   'dy':1},
-        {'x':246, 'y':389, 'dx':-1,  'dy':1},
-        {'x':167, 'y':211, 'dx':-1,  'dy':0}
+        {'x':400, 'y':110,  'dx':0,   'dy':-1},
+        {'x':566, 'y':238, 'dx':1,   'dy':0},
+        {'x':478, 'y':445, 'dx':1,   'dy':1},
+        {'x':322, 'y':445, 'dx':-1,  'dy':1},
+        {'x':234, 'y':238, 'dx':-1,  'dy':0}
       ] %}
       {% for i in range(5) %}
         {% for j in range(i+1, 5) %}
@@ -41,17 +41,15 @@
       <!-- Vertex nodes -->
       {% for i in range(5) %}
       {% set t = themes[i] %}
-      <!-- Vertex glow -->
-      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="28" fill="{{ t.color }}" opacity="0.12"/>
-      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="14" fill="{{ t.color }}" opacity="0.25"/>
-      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="6" fill="{{ t.color }}"/>
+      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="32" fill="{{ t.color }}" opacity="0.10"/>
+      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="16" fill="{{ t.color }}" opacity="0.22"/>
+      <circle cx="{{ pent_v[i].x }}" cy="{{ pent_v[i].y }}" r="7" fill="{{ t.color }}"/>
 
-      <!-- Title label -->
-      {% set lx = pent_v[i].x + pent_v[i].dx * 120 %}
-      {% set ly = pent_v[i].y + pent_v[i].dy * 60 %}
+      {% set lx = pent_v[i].x + pent_v[i].dx * 140 %}
+      {% set ly = pent_v[i].y + pent_v[i].dy * 72 %}
       <a href="theme-{{ t.id }}.html" class="pm-link">
         <text x="{{ lx }}" y="{{ ly }}" text-anchor="middle" class="pm-title">{{ t.title }}</text>
-        <text x="{{ lx }}" y="{{ ly + 20 }}" text-anchor="middle" class="pm-sub">{{ t.subtitle }}</text>
+        <text x="{{ lx }}" y="{{ ly + 24 }}" text-anchor="middle" class="pm-sub">{{ t.subtitle }}</text>
       </a>
       {% endfor %}
     </svg>
@@ -68,7 +66,11 @@
           <h2 class="band-title">{{ theme.title }}</h2>
           <span class="band-tag">{{ theme.nodes | length }} 节点</span>
         </div>
-        <p class="band-tension">{{ theme.framework.tension | truncate(120, true) }}</p>
+        <ul class="band-highlights">
+          {% for h in theme.framework.highlights %}
+          <li>{{ h }}</li>
+          {% endfor %}
+        </ul>
         <div class="band-meta">
           {% set years = theme.nodes | map(attribute='year') | list | sort %}
           <span class="band-span">{{ years[0] }}年 → {{ years[-1] }}年</span>
