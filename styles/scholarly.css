@@ -454,9 +454,7 @@ body {
 
 /* Cross references */
 .cross-refs {
-  margin-top: 4rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border);
+  margin-bottom: 2rem;
 }
 .cross-refs h2 {
   font-family: var(--sans);
