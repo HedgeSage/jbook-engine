@@ -99,6 +99,22 @@ def load_chapter_content(chapter_id: str) -> dict[str, Any]:
     if "ForwardHook" in sections:
         data["forward_hook"] = sections["ForwardHook"].strip()
 
+    # Sidenotes
+    if "Sidenotes" in sections:
+        data["sidenotes"] = _parse_sidenotes(sections["Sidenotes"])
+
+    # Deep Dive
+    if "DeepDive" in sections:
+        data["deep_dives"] = _parse_deep_dives(sections["DeepDive"])
+
+    # Comparison
+    if "Comparison" in sections:
+        data["comparison"] = _parse_comparison(sections["Comparison"])
+
+    # Playground
+    if "Playground" in sections:
+        data["playground"] = _parse_playground(sections["Playground"])
+
     return data
 
 
@@ -121,6 +137,15 @@ def _parse_sections(text: str) -> dict[str, str]:
     return sections
 
 
+def _glossary_terms(text: str) -> str:
+    """Replace **term**{definition} with glossary <span>."""
+    return re.sub(
+        r"\*\*(.+?)\*\*\{([^}]+)\}",
+        r'<span class="term" data-def="\2">\1</span>',
+        text,
+    )
+
+
 def _md_to_html(text: str) -> str:
     """Simple markdown → HTML conversion (paragraphs, emphasis, strong)."""
     lines = text.strip().split("\n")
@@ -131,6 +156,7 @@ def _md_to_html(text: str) -> str:
         nonlocal buf
         if buf:
             para = " ".join(buf).strip()
+            para = _glossary_terms(para)
             para = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", para)
             para = re.sub(r"\*(.+?)\*", r"<em>\1</em>", para)
             # Avoid wrapping standalone HTML/SVG
@@ -167,8 +193,9 @@ def _md_to_html(text: str) -> str:
 
 
 def _md_inline(text: str) -> str:
-    """Convert inline markdown: **bold**, *italic*. No blocks.<br/>
+    """Convert inline markdown: **bold**, *italic*, **term**{def}. No blocks.<br/>
     Safe for use inside HTML elements that don't allow <p> nesting."""
+    text = _glossary_terms(text)
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
     text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
     return text
@@ -317,6 +344,139 @@ def _parse_one_pitfall(mistake: str, body: str) -> dict:
     return {"mistake": mistake, "correction": correction.strip(), "importance": importance.strip()}
 
 
+def _parse_sidenotes(text: str) -> list[dict]:
+    """Parse sidenotes: - **term**：note  or  - term：note"""
+    items = []
+    for line in text.strip().split("\n"):
+        line = line.strip()
+        if not line.startswith("- "):
+            continue
+        line = line[2:]
+        # Match **term**：note or term：note
+        m = re.match(r"\*\*(.+?)\*\*\s*[：:]\s*(.+)", line)
+        if m:
+            items.append({"term": m.group(1), "note": _md_inline(m.group(2))})
+            continue
+        # Plain term：note
+        m = re.match(r"(.+?)\s*[：:]\s*(.+)", line)
+        if m:
+            items.append({"term": m.group(1), "note": _md_inline(m.group(2))})
+    return items
+
+
+def _parse_deep_dives(text: str) -> list[dict]:
+    """Parse deep dives: ### Title \\n body..."""
+    dives = []
+    parts = re.split(r"\n### (.+)\n", text)
+    if parts[0].startswith("### "):
+        first = parts[0][4:].split("\n", 1)
+        dives.append({"title": first[0].strip(), "body": _md_to_html(first[1].strip()) if len(first) > 1 else ""})
+    for i in range(1, len(parts), 2):
+        title = parts[i].strip()
+        body = parts[i + 1].strip() if i + 1 < len(parts) else ""
+        dives.append({"title": title, "body": _md_to_html(body)})
+    return dives
+
+
+def _parse_comparison(text: str) -> list[dict]:
+    """Parse comparison: ### Title \\n - item \\n - item"""
+    cols = []
+    parts = re.split(r"\n### (.+)\n", text)
+    if parts[0].startswith("### "):
+        first = parts[0][4:].split("\n", 1)
+        cols.append({"title": first[0].strip(), "items": _parse_list(first[1]) if len(first) > 1 else []})
+    for i in range(1, len(parts), 2):
+        title = parts[i].strip()
+        body = parts[i + 1].strip() if i + 1 < len(parts) else ""
+        # Convert items inline with markdown support
+        items = [_md_inline(item) for item in _parse_list(body)]
+        cols.append({"title": title, "items": items})
+    return cols
+
+
+def _parse_playground(text: str) -> dict | None:
+    """Parse playground block.
+
+    Format:
+      ### Title
+      intuitive text...
+      formula: -D * Δi * P
+      variables:
+      - D | 久期 | 5 | 1 | 10 | 0.1
+      - Δi | 利率变化(%) | 1.0 | -3.0 | 3.0 | 0.1
+      - P | 面值 | 1000 | 100 | 10000 | 100
+      result_prefix: 债券价格变化 ≈
+      result_unit: 元
+    """
+    lines = text.strip().split("\n")
+    title = ""
+    intuition_lines = []
+    formula_raw = ""
+    variables = []
+    result_prefix = ""
+    result_unit = ""
+
+    in_vars = False
+    in_intuition = True
+
+    for line in lines:
+        s = line.strip()
+        if s.startswith("### "):
+            title = s[4:]
+            continue
+        if s.lower().startswith("formula:") or s.startswith("公式:"):
+            in_intuition = False
+            in_vars = False
+            formula_raw = s.split(":", 1)[1].strip()
+            continue
+        if s.lower().startswith("variables:") or s.startswith("变量:"):
+            in_intuition = False
+            in_vars = True
+            continue
+        if s.lower().startswith("result_prefix:") or s.startswith("结果前缀:"):
+            in_vars = False
+            result_prefix = s.split(":", 1)[1].strip()
+            continue
+        if s.lower().startswith("result_unit:") or s.startswith("结果单位:"):
+            result_unit = s.split(":", 1)[1].strip()
+            continue
+        if in_vars and s.startswith("- "):
+            parts = [p.strip() for p in s[2:].split("|")]
+            if len(parts) >= 6:
+                variables.append({
+                    "symbol": parts[0],
+                    "label": parts[1],
+                    "default": float(parts[2]),
+                    "min": float(parts[3]),
+                    "max": float(parts[4]),
+                    "step": float(parts[5]),
+                })
+            continue
+        if in_intuition and s:
+            intuition_lines.append(s)
+
+    if not variables:
+        return None
+
+    # Build HTML formula with <span> wrappers for variable highlighting
+    formula_html = formula_raw
+    for v in variables:
+        sym = re.escape(v["symbol"])
+        formula_html = re.sub(
+            sym, f'<span class="pg-var" data-sym="{v["symbol"]}">{v["symbol"]}</span>', formula_html
+        )
+
+    return {
+        "title": title,
+        "intuition": _md_to_html("\n".join(intuition_lines)),
+        "formula_raw": formula_raw,
+        "formula_html": formula_html,
+        "variables": variables,
+        "result_prefix": result_prefix,
+        "result_unit": result_unit,
+    }
+
+
 # ── Build ──
 
 
@@ -332,10 +492,13 @@ def build(env: Environment, course_data: dict):
     (SITE / "chapters").mkdir(exist_ok=True)
     (SITE / "modules").mkdir(exist_ok=True)
 
-    # Copy assets: engine base styles.css + book overrides
+    # Copy assets: engine base styles.css + playground.js + book overrides
     engine_css = ROOT / "engine" / "styles.css"  # from jbook-engine submodule
     if engine_css.exists():
         shutil.copy2(engine_css, SITE / "styles.css")
+    playground_js = ROOT / "engine" / "playground.js"
+    if playground_js.exists():
+        shutil.copy2(playground_js, SITE / "playground.js")
     # Book-specific assets (can override engine defaults)
     if ASSETS.exists():
         for f in ASSETS.iterdir():
@@ -378,6 +541,14 @@ def build(env: Environment, course_data: dict):
                     merged["components"].append("math_minimal")
                 if chapter_data.get("pitfalls"):
                     merged["components"].append("pitfall")
+                if chapter_data.get("sidenotes"):
+                    merged["components"].append("sidenotes")
+                if chapter_data.get("deep_dives"):
+                    merged["components"].append("deep_dive")
+                if chapter_data.get("comparison"):
+                    merged["components"].append("comparison")
+                if chapter_data.get("playground"):
+                    merged["components"].append("playground")
 
             # Ensure forward_hook from YAML is used if not in MD
             if "forward_hook" not in merged and ch.get("forward_hook"):

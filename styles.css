@@ -741,6 +741,292 @@ main { flex: 1; }
   color: var(--color-text-subtle);
 }
 
+/* ── Sidenotes (页边注) ── */
+.sidenotes-block {
+  float: right;
+  width: 14rem;
+  margin: 0 0 var(--space-md) var(--space-lg);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  clear: right;
+}
+
+.sidenotes-block .sidenote-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.sidenotes-block dl { margin: 0; }
+.sidenotes-block dt {
+  font-weight: 600;
+  color: var(--color-cash);
+  margin-top: var(--space-xs);
+}
+.sidenotes-block dt:first-child { margin-top: 0; }
+.sidenotes-block dd {
+  margin: 2px 0 0 0;
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px dotted var(--color-border-light);
+}
+.sidenotes-block dd:last-child { border-bottom: none; padding-bottom: 0; }
+
+/* ── Deep Dive (折叠式深潜) ── */
+.deep-dive-block { margin: var(--space-xl) 0; }
+
+.deep-dive-block details {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  overflow: hidden;
+}
+
+.deep-dive-block details[open] {
+  border-color: var(--color-cash-border);
+}
+
+.deep-dive-block summary {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.deep-dive-block summary::-webkit-details-marker { display: none; }
+
+.deep-dive-block summary:hover { background: var(--color-cash-bg); }
+
+.deep-dive-block summary::before {
+  content: "+";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-cash-bg);
+  color: var(--color-cash);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.deep-dive-block details[open] summary::before {
+  content: "−";
+  transform: rotate(180deg);
+}
+
+.deep-dive-block .deep-body {
+  padding: 0 var(--space-lg) var(--space-lg);
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--color-text-muted);
+}
+
+/* ── Comparison (双栏对比) ── */
+.comparison-block { margin: var(--space-xl) 0; }
+
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.comparison-col {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
+
+.comparison-col:first-child {
+  border-left: 3px solid var(--color-time);
+  background: var(--color-time-bg);
+}
+
+.comparison-col:last-child {
+  border-left: 3px solid var(--color-cash);
+  background: var(--color-cash-bg);
+}
+
+.comparison-col h4 {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  margin: 0 0 var(--space-sm) 0;
+  color: var(--color-text);
+}
+
+.comparison-col ul {
+  margin: 0;
+  padding-left: var(--space-lg);
+  font-size: var(--text-sm);
+  line-height: 1.8;
+}
+
+.comparison-col ul li { margin-bottom: var(--space-xs); }
+
+/* ── Term Glossary (术语悬浮解释) ── */
+.term {
+  font-weight: 600;
+  color: var(--color-cash);
+  border-bottom: 1px dashed var(--color-cash-border);
+  cursor: help;
+  position: relative;
+}
+
+.term::after {
+  content: attr(data-def);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  width: max-content;
+  max-width: 18rem;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  line-height: 1.5;
+  border-radius: var(--radius-sm);
+  white-space: normal;
+  word-break: break-all;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s, transform 0.15s;
+  z-index: 20;
+}
+
+.term:hover::after,
+.term:focus::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Formula Playground (互动公式探索器) ── */
+.playground-block {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  margin: var(--space-xl) 0;
+}
+
+.playground-block .pg-formula {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  text-align: center;
+  padding: var(--space-lg);
+  background: #fafaf8;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+.playground-block .pg-formula .pg-var {
+  color: var(--color-accent);
+  font-weight: 700;
+  transition: color 0.2s;
+}
+
+.playground-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.pg-slider {
+  flex: 1 1 14rem;
+  min-width: 12rem;
+}
+
+.pg-slider label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.pg-slider label .pg-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pg-slider label .pg-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+  font-weight: 700;
+  min-width: 4em;
+  text-align: right;
+}
+
+.pg-slider input[type="range"] {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--color-border);
+  border-radius: 3px;
+  outline: none;
+}
+
+.pg-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-cash);
+  cursor: pointer;
+  border: 2px solid var(--color-bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.playground-result {
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  padding: var(--space-md);
+  background: var(--color-cash-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-cash-border);
+}
+
+.playground-result .pg-result-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-cash);
+}
+
+.playground-result .pg-result-unit {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-left: var(--space-xs);
+}
+
 /* ═══ Responsive Breakpoints ═══ */
 
 /* Mobile (< 768px): hide sidebar, single column */
@@ -755,6 +1041,9 @@ main { flex: 1; }
   .exploded-view { margin: var(--space-xl) 0; padding: var(--space-md); }
   .module-grid { grid-template-columns: 1fr; }
   .lens-nav { flex-direction: column; }
+  .sidenotes-block { float: none; width: auto; margin: var(--space-md) 0; }
+  .comparison-grid { grid-template-columns: 1fr; }
+  .playground-controls { flex-direction: column; }
 }
 
 /* Tablet (768–1023px) */

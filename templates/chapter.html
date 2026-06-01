@@ -106,6 +106,75 @@
 {% endif %}
 
 
+{% if 'sidenotes' in chapter.components and chapter.sidenotes %}
+        <div class="sidenotes-block">
+          <p class="sidenote-title">📝 边注</p>
+          <dl>
+            {% for s in chapter.sidenotes %}
+            <dt>{{ s.term }}</dt>
+            <dd>{{ s.note | safe }}</dd>
+            {% endfor %}
+          </dl>
+        </div>
+{% endif %}
+
+{% if 'deep_dive' in chapter.components and chapter.deep_dives %}
+        <section class="deep-dive-block">
+          <p class="eyebrow">Deep Dive</p>
+          {% for d in chapter.deep_dives %}
+          <details>
+            <summary>{{ d.title }}</summary>
+            <div class="deep-body">{{ d.body | safe }}</div>
+          </details>
+          {% endfor %}
+        </section>
+{% endif %}
+
+{% if 'comparison' in chapter.components and chapter.comparison %}
+        <section class="comparison-block">
+          <p class="eyebrow">Side by Side</p>
+          <div class="comparison-grid">
+            {% for col in chapter.comparison %}
+            <div class="comparison-col">
+              <h4>{{ col.title }}</h4>
+              <ul>
+                {% for item in col.items %}<li>{{ item | safe }}</li>{% endfor %}
+              </ul>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+{% endif %}
+
+{% if 'playground' in chapter.components and chapter.playground %}
+        <section class="playground-block" id="pg-{{ chapter_id }}" data-formula="{{ chapter.playground.formula_raw }}">
+          <p class="eyebrow">Playground</p>
+          <h3>{{ chapter.playground.title }}</h3>
+          <p>{{ chapter.playground.intuition | safe }}</p>
+          <div class="pg-formula">{{ chapter.playground.formula_html | safe }}</div>
+          <div class="playground-controls">
+            {% for v in chapter.playground.variables %}
+            <div class="pg-slider">
+              <label>
+                <span class="pg-name">{{ v.label }}</span>
+                <span class="pg-val" id="pg-{{ chapter_id }}-{{ v.symbol }}-val">{{ v.default }}</span>
+              </label>
+              <input type="range"
+                     id="pg-{{ chapter_id }}-{{ v.symbol }}"
+                     min="{{ v.min }}" max="{{ v.max }}" step="{{ v.step }}"
+                     value="{{ v.default }}"
+                     data-symbol="{{ v.symbol }}">
+            </div>
+            {% endfor %}
+          </div>
+          <div class="playground-result">
+            <span>{{ chapter.playground.result_prefix }}</span>
+            <span class="pg-result-val" id="pg-{{ chapter_id }}-result"></span>
+            <span class="pg-result-unit">{{ chapter.playground.result_unit }}</span>
+          </div>
+        </section>
+{% endif %}
+
 {% if chapter.forward_hook %}
         <div class="forward-hook">
           <span class="arrow">↓</span>
@@ -128,5 +197,6 @@
       </footer>
     </div>
   </div>
+  <script src="{{ asset_path }}playground.js?v={{ css_version }}" defer></script>
 </body>
 </html>
