@@ -88,6 +88,7 @@ p { margin-bottom: var(--space-md); }
   color: var(--color-text-muted);
   line-height: 1.7;
   margin-bottom: var(--space-lg);
+  text-wrap: balance;
 }
 
 /* ── Eyebrow (section label) ── */
